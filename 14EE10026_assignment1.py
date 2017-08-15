@@ -23,6 +23,16 @@ class State(list):
             for j in range(self.N):
                 if(self[i][j]==0): return (i, j)
 
+    def pubup(self):
+        if self.blank[0]==0:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]-1][self.blank[1]]
+        self[self.blank[0]-1][self.blank[1]]=0
+        output=str(self)
+        self[self.blank[0]-1][self.blank[1]]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
+
     def push_blank_up(self):
         if self.blank[0]==0:
             return None
@@ -32,6 +42,16 @@ class State(list):
         nstate.blank = (self.blank[0] - 1, self.blank[1])
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
+
+    def pubdown(self):
+        if self.blank[0]==self.N-1:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]+1][self.blank[1]]
+        self[self.blank[0]+1][self.blank[1]]=0
+        output=str(self)
+        self[self.blank[0]+1][self.blank[1]]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
 
     def push_blank_down(self):
         if self.blank[0]==self.N-1:
@@ -43,6 +63,16 @@ class State(list):
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
 
+    def publeft(self):
+        if self.blank[1]==0:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]][self.blank[1]-1]
+        self[self.blank[0]][self.blank[1]-1]=0
+        output=str(self)
+        self[self.blank[0]][self.blank[1]-1]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
+
     def push_blank_left(self):
         if self.blank[1]==0:
             return None
@@ -52,6 +82,16 @@ class State(list):
         nstate.blank = (self.blank[0], self.blank[1] - 1)
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
+
+    def pubright(self):
+        if self.blank[1]==self.N-1:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]][self.blank[1]+1]
+        self[self.blank[0]][self.blank[1]+1]=0
+        output=str(self)
+        self[self.blank[0]][self.blank[1]+1]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
 
     def push_blank_right(self):
         if self.blank[1]==self.N-1:
@@ -154,23 +194,51 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
         nodes += 1
         if(str(ostate) == str(goal)):
             return ostate, nodes
-        state = ostate.push_blank_up()
-        if (state!=None and str(state) not in visited):
+        state = ostate.pubup()
+        if (state!=None and state not in visited):
             visited.add(str(state))
+            state = ostate.push_blank_up()
             heapq.heappush(heap, (eval(f_n), state))
-        state = ostate.push_blank_down()
-        if (state!=None and str(state) not in visited):
+        state = ostate.pubdown()
+        if (state!=None and state not in visited):
             visited.add(str(state))
+            state = ostate.push_blank_down()
             heapq.heappush(heap, (eval(f_n), state))
-        state = ostate.push_blank_left()
-        if (state!=None and str(state) not in visited):
+        state = ostate.publeft()
+        if (state!=None and state not in visited):
             visited.add(str(state))
+            state = ostate.push_blank_left()
             heapq.heappush(heap, (eval(f_n), state))
-        state = ostate.push_blank_right()
-        if (state!=None and str(state) not in visited):
+        state = ostate.pubright()
+        if (state!=None and state not in visited):
             visited.add(str(state))
+            state = ostate.push_blank_right()
             heapq.heappush(heap, (eval(f_n), state))
+    return None, nodes
 
+# def idastar
 
 goal = State([[1,2,3],[4,5,6],[7,8,0]])
 start = State([[1,2,3],[4,5,6],[7,0,8]])
+
+if __name__ == '__main__':
+    f = open('input.txt').read().strip().split('\n\n')
+    fl = []
+    cnt=-1
+    for i in f:
+        fl.append([])
+        cnt+=1
+        cnt1=-1
+        for j in i.strip().split('\n'):
+            cnt1+=1
+            fl[cnt].append([])
+            for k in j.strip().split():
+                fl[cnt][cnt1].append(int(k))
+    for i in range(len(fl)//2):
+        start = State(fl[2*i])
+        goal = State(fl[2*i+1])
+        ans=(astar(start, goal, manhattan))
+        if(ans[0]!=None):
+            print(ans[0].level,ans[1])
+        else:
+            print(ans[1])
