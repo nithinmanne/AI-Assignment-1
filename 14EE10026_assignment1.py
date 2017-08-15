@@ -1,11 +1,10 @@
-from copy import deepcopy as copy
 
 class State(list):
     '''Class for holding the state as a list of lists of NxN'''
 
-    def __init__(self, state):
-        list = copy(state)
-        self.N = len(state)
+    def __init__(self, *state):
+        list.__init__(self, *state)
+        self.N = len(*state)
 
     def __str__(self):
         state_str = ""
