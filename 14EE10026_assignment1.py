@@ -24,6 +24,16 @@ class State(list):
             for j in range(self.N):
                 if(self[i][j]==0): return (i, j)
 
+    def pubup(self):
+        if self.blank[0]==0:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]-1][self.blank[1]]
+        self[self.blank[0]-1][self.blank[1]]=0
+        output=str(self)
+        self[self.blank[0]-1][self.blank[1]]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
+
     def push_blank_up(self):
         if self.blank[0]==0:
             return None
@@ -33,6 +43,16 @@ class State(list):
         nstate.blank = (self.blank[0] - 1, self.blank[1])
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
+
+    def pubdown(self):
+        if self.blank[0]==self.N-1:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]+1][self.blank[1]]
+        self[self.blank[0]+1][self.blank[1]]=0
+        output=str(self)
+        self[self.blank[0]+1][self.blank[1]]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
 
     def push_blank_down(self):
         if self.blank[0]==self.N-1:
@@ -44,6 +64,16 @@ class State(list):
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
 
+    def publeft(self):
+        if self.blank[1]==0:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]][self.blank[1]-1]
+        self[self.blank[0]][self.blank[1]-1]=0
+        output=str(self)
+        self[self.blank[0]][self.blank[1]-1]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
+
     def push_blank_left(self):
         if self.blank[1]==0:
             return None
@@ -53,6 +83,16 @@ class State(list):
         nstate.blank = (self.blank[0], self.blank[1] - 1)
         nstate[nstate.blank[0]][nstate.blank[1]] = 0
         return nstate
+
+    def pubright(self):
+        if self.blank[1]==self.N-1:
+            return None
+        self[self.blank[0]][self.blank[1]]=self[self.blank[0]][self.blank[1]+1]
+        self[self.blank[0]][self.blank[1]+1]=0
+        output=str(self)
+        self[self.blank[0]][self.blank[1]+1]=self[self.blank[0]][self.blank[1]]
+        self[self.blank[0]][self.blank[1]]=0
+        return output
 
     def push_blank_right(self):
         if self.blank[1]==self.N-1:
@@ -164,7 +204,7 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             print (popt,pusht,blkm,intime,addt)
             return ostate, nodes
         tmp=time.time()
-        state = ostate.push_blank_up()
+        state = ostate.pubup()
         blkm+=time.time()-tmp
         tmp=time.time()
         if (state!=None and str(state) not in visited):
@@ -172,11 +212,14 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             tmp=time.time()
             visited.add(str(state))
             addt+=time.time()-tmp
+            tmp=time.time()
+            state = ostate.push_blank_up()
+            blkm+=time.time()-tmp
             tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
             pusht+=time.time()-tmp
         tmp=time.time()
-        state = ostate.push_blank_down()
+        state = ostate.pubdown()
         blkm+=time.time()-tmp
         tmp=time.time()
         if (state!=None and str(state) not in visited):
@@ -184,11 +227,14 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             tmp=time.time()
             visited.add(str(state))
             addt+=time.time()-tmp
+            tmp=time.time()
+            state = ostate.push_blank_down()
+            blkm+=time.time()-tmp
             tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
             pusht+=time.time()-tmp
         tmp=time.time()
-        state = ostate.push_blank_left()
+        state = ostate.publeft()
         blkm+=time.time()-tmp
         tmp=time.time()
         if (state!=None and str(state) not in visited):
@@ -196,11 +242,14 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             tmp=time.time()
             visited.add(str(state))
             addt+=time.time()-tmp
+            tmp=time.time()
+            state = ostate.push_blank_left()
+            blkm+=time.time()-tmp
             tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
             pusht+=time.time()-tmp
         tmp=time.time()
-        state = ostate.push_blank_right()
+        state = ostate.pubright()
         blkm+=time.time()-tmp
         tmp=time.time()
         if (state!=None and str(state) not in visited):
@@ -208,6 +257,9 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             tmp=time.time()
             visited.add(str(state))
             addt+=time.time()-tmp
+            tmp=time.time()
+            state = ostate.push_blank_right()
+            blkm+=time.time()-tmp
             tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
             pusht+=time.time()-tmp
@@ -233,7 +285,7 @@ if __name__ == '__main__':
     for i in range(len(fl)//2):
         start = State(fl[2*i])
         goal = State(fl[2*i+1])
-        ans=(astar(start, goal, manhattan))
+        ans=(astar(start, goal))
         if(ans[0]!=None):
             print(ans[0].level,ans[1])
         else:
