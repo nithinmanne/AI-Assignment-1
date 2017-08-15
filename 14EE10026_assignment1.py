@@ -1,5 +1,6 @@
 import heapq
 from copy import deepcopy as copy
+import time
 
 class State(list):
     '''Class for holding the state as a list of lists of NxN'''
@@ -149,28 +150,91 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
     state = start
     visited.add(str(state))
     heapq.heappush(heap, (eval(f_n), state))
+    popt=0
+    pusht=0
+    blkm=0
+    intime=0
+    addt=0
     while(len(heap)>0):
+        tmp=time.time()
         f_nv, ostate = heapq.heappop(heap)
+        popt+=time.time()-tmp
         nodes += 1
         if(str(ostate) == str(goal)):
+            print (popt,pusht,blkm,intime,addt)
             return ostate, nodes
+        tmp=time.time()
         state = ostate.push_blank_up()
+        blkm+=time.time()-tmp
+        tmp=time.time()
         if (state!=None and str(state) not in visited):
+            intime+=time.time()-tmp
+            tmp=time.time()
             visited.add(str(state))
+            addt+=time.time()-tmp
+            tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
+            pusht+=time.time()-tmp
+        tmp=time.time()
         state = ostate.push_blank_down()
+        blkm+=time.time()-tmp
+        tmp=time.time()
         if (state!=None and str(state) not in visited):
+            intime+=time.time()-tmp
+            tmp=time.time()
             visited.add(str(state))
+            addt+=time.time()-tmp
+            tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
+            pusht+=time.time()-tmp
+        tmp=time.time()
         state = ostate.push_blank_left()
+        blkm+=time.time()-tmp
+        tmp=time.time()
         if (state!=None and str(state) not in visited):
+            intime+=time.time()-tmp
+            tmp=time.time()
             visited.add(str(state))
+            addt+=time.time()-tmp
+            tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
+            pusht+=time.time()-tmp
+        tmp=time.time()
         state = ostate.push_blank_right()
+        blkm+=time.time()-tmp
+        tmp=time.time()
         if (state!=None and str(state) not in visited):
+            intime+=time.time()-tmp
+            tmp=time.time()
             visited.add(str(state))
+            addt+=time.time()-tmp
+            tmp=time.time()
             heapq.heappush(heap, (eval(f_n), state))
-
+            pusht+=time.time()-tmp
+    print (popt,pusht,blkm,intime,addt)
+    return None, nodes
 
 goal = State([[1,2,3],[4,5,6],[7,8,0]])
 start = State([[1,2,3],[4,5,6],[7,0,8]])
+
+if __name__ == '__main__':
+    f = open('input.txt').read().strip().split('\n\n')
+    fl = []
+    cnt=-1
+    for i in f:
+        fl.append([])
+        cnt+=1
+        cnt1=-1
+        for j in i.strip().split('\n'):
+            cnt1+=1
+            fl[cnt].append([])
+            for k in j.strip().split():
+                fl[cnt][cnt1].append(int(k))
+    for i in range(len(fl)//2):
+        start = State(fl[2*i])
+        goal = State(fl[2*i+1])
+        ans=(astar(start, goal, manhattan))
+        if(ans[0]!=None):
+            print(ans[0].level,ans[1])
+        else:
+            print(ans[1])
