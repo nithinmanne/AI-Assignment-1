@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 import heapq
+from time import time
 
 def copy(old):
     new = []
@@ -169,19 +170,20 @@ def linear_conflict(state, goal):
                             for m in state[i][j:]:
                                 if m in goal[k][:l]:
                                     count += 2
-                        if(j==l):
-                            nstate = zip(*state)
-                            ngoal = zip(*goal)
-                            for m in nstate[i][:j]:
-                                if m in ngoal[k][l:]:
-                                    count += 2
-                            for m in nstate[i][j:]:
-                                if m in ngoal[k][:l]:
-                                    count += 2
+                        # if(j==l):
+                        #     nstate = list(zip(*state))
+                        #     ngoal = list(zip(*goal))
+                        #     for m in nstate[i][:j]:
+                        #         if m in ngoal[k][l:]:
+                        #             count += 2
+                        #     for m in nstate[i][j:]:
+                        #         if m in ngoal[k][:l]:
+                        #             count += 2
                         found = True
                         break
                 if found:
                     break
+    return count
 
 
 def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
@@ -255,7 +257,6 @@ def idastar(start, goal, heuristic = None, f_n = 'g + h(state)'):
         if t == 'Found': return(path, bound)
         if t == float('inf'): return None
         bound = t
-        print(t)
 
 goal = State([[1,2,3],[4,5,6],[7,8,0]])
 start = State([[1,2,3],[4,5,6],[7,0,8]])
@@ -281,4 +282,29 @@ if __name__ == '__main__':
         #     print(ans[0].level,ans[1])
         # else:
         #     print(ans[1])
-        print(idastar(start, goal, zero))
+        t = time()
+        print("Start:",start)
+        print("Goal:",goal)
+        print("A*,Zero:",astar(start, goal))
+        print("Time:",time()-t)
+        t = time()
+        print("A*,Manhattan:",astar(start, goal, manhattan))
+        print("Time:",time()-t)
+        t = time()
+        print("A*,Misplaced Tiles:",astar(start, goal, misplaced_tiles))
+        print("Time:",time()-t)
+        t = time()
+        print("A*,Linear Conflict:",astar(start, goal, linear_conflict))
+        print("Time:",time()-t)
+        t = time()
+        print("IDA*,Zero:",idastar(start, goal))
+        print("Time:",time()-t)
+        t = time()
+        print("IDA*,Manhattan:",idastar(start, goal, manhattan))
+        print("Time:",time()-t)
+        t = time()
+        print("IDA*,Misplaced Tiles:",idastar(start, goal, misplaced_tiles))
+        print("Time:",time()-t)
+        t = time()
+        print("IDA*,Linear Conflict:",idastar(start, goal, linear_conflict))
+        print("Time:",time()-t)
