@@ -1,14 +1,23 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import heapq
-from copy import deepcopy as copy
+
+def copy(old):
+    new = []
+    for i in range(old.N):
+        new.append([])
+        for j in old[i]:
+            new[i].append(j)
+    return new
 
 class State(list):
     '''Class for holding the state as a list of lists of NxN'''
 
-    def __init__(self, *state, blank = None):
+    def __init__(self, *state, **blank):
         list.__init__(self, *state)
         self.N = len(*state)
         self.level = 0
-        if(blank == None):
+        if('blank' not in blank):
             self.blank = self.get_blank()
 
     def __str__(self):
@@ -216,7 +225,37 @@ def astar(start, goal, heuristic = None, f_n = 'g(state) + h(state)'):
             heapq.heappush(heap, (eval(f_n), state))
     return None, nodes
 
-# def idastar
+def idastar(start, goal, heuristic = None, f_n = 'g + h(state)'):
+    if heuristic == None:
+        heuristic = zero
+    if not(hasattr(heuristic, 'heuristic_function') and getattr(heuristic, 'heuristic_function')):
+        raise ValueError("Given function needs to be decorated with @heuristic_function")
+    h = heuristic(goal)
+    g = 0
+    state = start
+    bound = eval(f_n)
+    path = [ start ]
+    def search(path, g, h, bound):
+        state = path[-1]
+        f = eval(f_n)
+        if f>bound: return f
+        if str(state)==str(goal): return 'Found'
+        mini = float('inf')
+        successors = filter(lambda x: x!=None, [state.push_blank_up(), state.push_blank_down(), state.push_blank_left(), state.push_blank_right()])
+        for succ in successors:
+            if succ not in path:
+                path.append(succ)
+                t = search(path, g + 1, h, bound)
+                if t == 'Found': return 'Found'
+                if t < mini: mini = t
+                path.pop()
+        return mini
+    while True:
+        t = search(path, 0, h, bound)
+        if t == 'Found': return(path, bound)
+        if t == float('inf'): return None
+        bound = t
+        print(t)
 
 goal = State([[1,2,3],[4,5,6],[7,8,0]])
 start = State([[1,2,3],[4,5,6],[7,0,8]])
@@ -237,8 +276,9 @@ if __name__ == '__main__':
     for i in range(len(fl)//2):
         start = State(fl[2*i])
         goal = State(fl[2*i+1])
-        ans=(astar(start, goal, manhattan))
-        if(ans[0]!=None):
-            print(ans[0].level,ans[1])
-        else:
-            print(ans[1])
+        # ans=(astar(start, goal, manhattan))
+        # if(ans[0]!=None):
+        #     print(ans[0].level,ans[1])
+        # else:
+        #     print(ans[1])
+        print(idastar(start, goal, zero))
