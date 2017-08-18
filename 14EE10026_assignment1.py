@@ -1,5 +1,6 @@
-from __future__ import print_function
-from __future__ import unicode_literals
+"""A* and IDA* Implementation."""
+from __future__ import print_function, unicode_literals
+
 import heapq
 from time import time
 
@@ -14,7 +15,7 @@ def copy(old):
 
 
 class State(list):
-    '''Class for holding the state as a list of lists of NxN'''
+    """Class for holding the state as a list of lists of NxN."""
 
     def __init__(self, *state, **blank):
         list.__init__(self, *state)
@@ -24,6 +25,7 @@ class State(list):
             self.blank = self.get_blank()
 
     def __str__(self):
+        """For adding to set."""
         state_str = ""
         for i in self:
             for j in i:
@@ -215,6 +217,7 @@ def astar(start, goal, heuristic=None, f_n='g(state) + h(state)'):
         raise ValueError(
             "Given function needs to be decorated with @heuristic_function")
     h = heuristic(goal)
+    h(start)
 
     def g(state):
         return state.level
@@ -225,7 +228,7 @@ def astar(start, goal, heuristic=None, f_n='g(state) + h(state)'):
     visited.add(str(state))
     heapq.heappush(heap, (eval(f_n), state))
     while(len(heap) > 0):
-        f_nv, ostate = heapq.heappop(heap)
+        _, ostate = heapq.heappop(heap)
         nodes += 1
         if(str(ostate) == str(goal)):
             return ostate, nodes
@@ -260,8 +263,10 @@ def idastar(start, goal, heuristic=None, f_n='g + h(state)'):
         raise ValueError(
             "Given function needs to be decorated with @heuristic_function")
     h = heuristic(goal)
-    g = 0
     state = start
+    h(state)
+    g = 0
+    int(g)
     bound = eval(f_n)
     path = [start]
 
